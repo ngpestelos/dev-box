@@ -1,0 +1,33 @@
+---
+- name: Create deploy user
+  user: name=deploy state=present shell=/bin/bash groups=sudo
+
+- name: Create /home/deploy/.ssh
+  file: >
+    name=/home/deploy/.ssh
+    owner=deploy
+    group=deploy
+    state=directory
+    mode=0400
+
+- name: Copy authorized_keys
+  copy: >
+    src=authorized_keys
+    dest=/home/deploy/.ssh/authorized_keys
+    owner=deploy
+    group=deploy
+    mode=0400
+
+- name: Disallow root SSH access
+  lineinfile: >
+    dest=/etc/ssh/sshd_config
+    regexp="^PermitRootLogin"
+    line="PermitRootLogin no"
+    state=present
+
+- name: Disallow password authentication
+  lineinfile: >
+    dest=/etc/ssh/sshd_config
+    regexp="^PasswordAuthentication"
+    line="PasswordAuthentication no"
+    state=present

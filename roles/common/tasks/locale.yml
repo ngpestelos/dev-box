@@ -1,0 +1,9 @@
+---
+- name: ensure default locale exists
+  locale_gen: name=en_US.UTF-8 state=present
+
+- name: set encoding to utf-8
+  copy: >
+    src=locale
+    dest=/etc/default/locale
+    mode=644

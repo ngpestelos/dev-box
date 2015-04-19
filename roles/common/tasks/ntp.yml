@@ -1,0 +1,6 @@
+---
+- name: Install ntp
+  apt: pkg=ntp state=installed
+
+- name: Configure ntp
+  template: src=ntp.conf dest=/etc/ntp.conf

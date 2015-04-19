@@ -1,0 +1,11 @@
+---
+- name: Install packages
+  apt: pkg={{ item }} state=latest
+  with_items:
+    - build-essential
+    - git
+    - make
+    - mercurial
+    - python-software-properties
+    - python-virtualenv
+    - swig

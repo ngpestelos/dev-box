@@ -1,0 +1,17 @@
+---
+- name: Install packages
+  apt: pkg={{ item }} state=latest
+  with_items:
+    - ca-certificates
+    - curl
+    - htop
+    - iftop
+    - iotop
+    - libssl-dev
+    - libyaml-dev
+    - screen
+    - tree
+    - unzip
+    - vim
+    - wget
+    - zip
