@@ -1,6 +1,16 @@
 ---
-- name: Create deploy user
-  user: name=deploy state=present shell=/bin/bash groups=sudo
+- name: Add deployment user
+  user: >
+    name=deploy
+    generate_ssh_key=yes
+    shell=/bin/bash
+    state=present
+
+- name: Add deploy user to sudoers
+  lineinfile: >
+    dest=/etc/sudoers regexp='deploy ALL'
+    line='deploy ALL=(ALL) NOPASSWD: ALL'
+    state=present
 
 - name: Create /home/deploy/.ssh
   file: >
@@ -8,7 +18,6 @@
     owner=deploy
     group=deploy
     state=directory
-    mode=0400
 
 - name: Copy authorized_keys
   copy: >
@@ -17,6 +26,9 @@
     owner=deploy
     group=deploy
     mode=0400
+
+- name: Remove sudo group rights
+  lineinfile: dest=/etc/sudoers regexp="^%sudo" state=absent
 
 - name: Disallow root SSH access
   lineinfile: >

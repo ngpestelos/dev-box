@@ -4,6 +4,7 @@
   with_items:
     - ca-certificates
     - curl
+    - fail2ban
     - htop
     - iftop
     - iotop
