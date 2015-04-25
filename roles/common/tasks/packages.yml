@@ -9,6 +9,7 @@
     - iotop
     - libssl-dev
     - libyaml-dev
+    - mosh
     - screen
     - tree
     - unzip
