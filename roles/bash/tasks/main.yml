@@ -1,0 +1,7 @@
+---
+- name: Copy .bash_profile
+  copy: >
+    src=bash_profile
+    dest=/home/deploy/.bash_profile
+    owner=deploy
+    group=deploy

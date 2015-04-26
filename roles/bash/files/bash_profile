@@ -1,0 +1,5 @@
+export GEM_HOME="$HOME/.gem"
+
+export GOPATH="$HOME/go"
+export GOROOT="/usr/local/go"
+export PATH="$GEM_HOME/bin:$GOPATH/bin:$GOROOT/bin:$HOME/bin:$PATH"
