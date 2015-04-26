@@ -1,0 +1,9 @@
+- hosts: all
+  user: deploy
+  sudo: True
+  gather_facts: True
+  vars_files:
+    - vars/defaults.yml
+
+  roles:
+    - docker
