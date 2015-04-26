@@ -1,0 +1,19 @@
+---
+- name: Add BrightBox repository
+  apt_repository: repo="ppa:brightbox/ruby-ng"
+
+- name: Update APT package cache
+  apt: update_cache=yes upgrade=safe cache_valid_time=86400
+
+- name: Install ruby
+  apt: pkg={{ item }}
+  with_items:
+    - ruby{{ ruby_version }}
+    - ruby{{ ruby_version }}-dev
+
+- name: Setup GEM_HOME
+  file: >
+    path=/home/deploy/.gem
+    state=directory
+    owner=deploy
+    group=deploy
