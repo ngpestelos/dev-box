@@ -1,6 +1,6 @@
 docker_version: "1.5.0"
-go_version: "1.4.1"
+go_version: "1.4.2"
 go_os: "linux"
 go_arch: "amd64"
-go_tarball_checksum: "68170d5d48fc317155e69d2b55e4c09878433462ddb77d7900db6590ce2bef49"
+go_tarball_checksum: "141b8345932641483c2437bdbd65488a269282ac85f91170805c273f03dd223b"
 ruby_version: "2.2"
