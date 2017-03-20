@@ -1,13 +1,5 @@
 - hosts: all
-  user: deploy
-  sudo: True
+  user: root
   gather_facts: True
-  vars_files:
-    - vars/defaults.yml
-
   roles:
-    - docker
-    - go
-    - ruby
-    - bash
-    - sqlite
+    - common

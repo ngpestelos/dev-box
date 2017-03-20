@@ -30,13 +30,6 @@
 - name: Remove sudo group rights
   lineinfile: dest=/etc/sudoers regexp="^%sudo" state=absent
 
-- name: Disallow root SSH access
-  lineinfile: >
-    dest=/etc/ssh/sshd_config
-    regexp="^PermitRootLogin"
-    line="PermitRootLogin no"
-    state=present
-
 - name: Disallow password authentication
   lineinfile: >
     dest=/etc/ssh/sshd_config

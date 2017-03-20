@@ -1,7 +1,0 @@
-- hosts: all
-  user: root
-  sudo: True
-  gather_facts: True
-
-  roles:
-    - common
