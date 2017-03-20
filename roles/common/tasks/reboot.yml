@@ -1,3 +1,0 @@
----
-- name: Reboot
-  command: /sbin/shutdown -r now

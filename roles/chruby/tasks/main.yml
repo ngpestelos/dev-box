@@ -1,0 +1,90 @@
+---
+- name: Download postmodern's PGP signature
+  get_url:
+    url: "{{ postmodern_key_url }}"
+    dest: "{{ postmodern_key_asc }}"
+  tags: chruby
+
+- name: Import postmodern's PGP signature
+  shell: "gpg --import {{ postmodern_key_asc }}"
+  tags: chruby
+
+- name: Delete postmodern's PGP signature
+  file:
+    path: "{{ postmodern_key_asc }}"
+    state: absent
+  tags: chruby
+
+- name: Download ruby-install
+  get_url:
+    url: "{{ ruby_install_url }}"
+    checksum: "sha256:{{ ruby_install_checksum }}"
+    dest: "/usr/local/{{ ruby_install_gz }}"
+  tags: chruby
+
+- name: Unpack ruby-install
+  unarchive:
+    src: "/usr/local/{{ ruby_install_gz }}"
+    dest: "/usr/local"
+    copy: no
+  tags: chruby
+
+- name: Install ruby-install
+  shell: "make install chdir=/usr/local/{{ ruby_install }}"
+  tags: chruby
+
+- name: Delete ruby_install
+  file:
+    path: "/usr/local/{{ ruby_install }}"
+    state: absent
+  tags: chruby
+
+- name: Delete ruby_install_gz
+  file:
+    path: "/usr/local/{{ ruby_install_gz }}"
+    state: absent
+  tags: chruby
+
+- name: Download chruby
+  shell: "wget -O {{ chruby_gz }} {{ chruby_url }} chdir=/usr/local"
+  tags: chruby
+
+- name: Download chruby's PGP signature
+  shell: "wget -O {{ chruby_asc }} {{ chruby_asc_url }} chdir=/usr/local"
+  tags: chruby
+
+- name: Verify chruby
+  shell: "gpg --verify {{ chruby_asc }} {{ chruby_gz }} chdir=/usr/local"
+  tags: chruby
+
+- name: Unpack chruby
+  shell: "tar xvf {{ chruby_gz }} chdir=/usr/local"
+  tags: chruby
+
+- name: Install chruby
+  shell: "./scripts/setup.sh chdir=/usr/local/{{ chruby }}"
+  tags: chruby
+
+- name: Delete chruby
+  file:
+    path: "/usr/local/{{ chruby }}"
+    state: absent
+  tags: chruby
+
+- name: Delete chruby_gz
+  file:
+    path: "/usr/local/{{ chruby_gz }}"
+    state: absent
+  tags: chruby
+
+- name: Delete chruby_asc
+  file:
+    path: "/usr/local/{{ chruby_asc }}"
+    state: absent
+  tags: chruby
+
+- name: Copy chruby.sh
+  copy:
+    src: chruby.sh
+    dest: /etc/profile.d/chruby.sh
+  tags: chruby
