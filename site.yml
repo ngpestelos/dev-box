@@ -4,3 +4,7 @@
   roles:
     - common
     - chruby
+    - mysql
+    - sqlite
+    - nodejs
+    - postgresql

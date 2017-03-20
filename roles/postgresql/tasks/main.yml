@@ -1,0 +1,173 @@
+---
+- name: Install dependencies
+  apt: pkg={{ item }} state=latest
+  with_items:
+    - ca-certificates
+    - libpq-dev
+    - locales
+    - python-psycopg2
+    - python-pycurl
+  tags: postgresql
+
+- name: Add PostgreSQL repository apt-key
+  apt_key:
+    id: "{{ postgresql_apt_key_id }}"
+    url: "{{ postgresql_apt_key_url }}"
+    state: present
+  tags: postgresql
+
+- name: Add PostgreSQL repository
+  apt_repository:
+    repo: "{{ postgresql_apt_repository }}"
+    state: present
+  tags: postgresql
+
+- name: Add PostgreSQL repository preferences
+  copy:
+    src: postgresql.apt.pref
+    dest: "{{ postgresql_apt_preferences_path }}"
+  tags: postgresql
+
+- name: Install PostgreSQL
+  apt:
+    name: "{{ item }}"
+    state: latest
+  environment: "{{ postgresql_env }}"
+  with_items:
+    - "postgresql-{{ postgresql_version }}"
+    - "postgresql-client-{{ postgresql_version }}"
+    - "postgresql-contrib-{{ postgresql_version }}"
+  tags: postgresql
+
+- name: Setup data directory
+  file:
+    path: "{{ postgresql_data_path }}"
+    owner: "{{ postgresql_service_user }}"
+    group: "{{ postgresql_service_group }}"
+    state: directory
+    mode: 0700
+  register: postgresql_data_path_exists
+  tags: postgresql
+
+- name: Generate locale
+  locale_gen: name="{{ postgresql_locale }}" state=present
+  tags: postgresql
+
+- name: Drop the cluster
+  shell: pg_dropcluster --stop {{ postgresql_version }} {{ postgresql_cluster_name }}
+  become: True
+  become_user: "{{ postgresql_service_user }}"
+  when: postgresql_data_path_exists.changed
+  ignore_errors: True
+  tags: postgresql
+
+- name: Create a new cluster
+  shell: |
+    pg_createcluster --start --locale {{ postgresql_locale }}
+    -e {{ postgresql_encoding }} -d {{ postgresql_data_path }}
+    {{ postgresql_version }} {{ postgresql_cluster_name }}
+  become: True
+  become_user: "{{ postgresql_service_user }}"
+  when: postgresql_data_path_exists.changed
+  tags: postgresql
+
+- name: Setup configuration directory
+  file:
+    path: "{{ postgresql_conf_path }}"
+    owner: "{{ postgresql_service_user }}"
+    group: "{{ postgresql_service_group }}"
+    mode: 0750
+    state: directory
+  tags: postgresql
+
+- name: Setup pg_hba.conf
+  template:
+    src: pg_hba.conf
+    dest: "{{ postgresql_hba_file }}"
+    owner: "{{ postgresql_service_user }}"
+    group: "{{ postgresql_service_group }}"
+    mode: 0640
+  tags: postgresql
+
+- name: Setup postgresql.conf
+  template:
+    src: postgresql.conf
+    dest: "{{ postgresql_conf_file }}"
+    owner: "{{ postgresql_service_user }}"
+    group: "{{ postgresql_service_group }}"
+    mode: 0640
+  tags: postgresql
+
+- name: Create folder for additional configuration files
+  file:
+    path: "{{ postgresql_conf_path }}/conf.d"
+    state: directory
+    owner: "{{ postgresql_service_user }}"
+    group: "{{ postgresql_service_group }}"
+    mode: 0750
+  tags: postgresql
+
+- name: Setup log directory
+  file:
+    path: "{{ postgresql_log_path }}"
+    owner: "{{ postgresql_service_user }}"
+    group: "{{ postgresql_service_group }}"
+    mode: 0750
+    state: directory
+  tags: postgresql
+
+- name: Setup pid directory
+  file:
+    path: "{{ postgresql_pid_path }}"
+    owner: "{{ postgresql_service_user }}"
+    group: "{{ postgresql_service_group }}"
+    mode: 0750
+    state: directory
+  tags: postgresql
+
+- name: Create PostgreSQL users
+  postgresql_user:
+    name: "{{ item.name }}"
+    password: "{{ item.password | default(omit) }}"
+    encrypted: "{{ item.encrypted | default(omit) }}"
+    port: "{{ postgresql_port }}"
+    state: present
+    login_user: "{{ postgresql_admin_user }}"
+  become: True
+  become_user: "{{ postgresql_admin_user }}"
+  with_items: "{{ postgresql_users }}"
+  when: "postgresql_users|length > 0"
+  tags: postgresql
+
+- name: Make sure the PostgreSQL databases are present
+  postgresql_db:
+    name: "{{ item.name }}"
+    owner: "{{ item.owner | default(postgresql_admin_user) }}"
+    encoding: "{{ postgresql_encoding }}"
+    lc_collate: "{{ postgresql_locale }}"
+    lc_ctype: "{{ postgresql_locale }}"
+    port: "{{ postgresql_port }}"
+    template: "template0"
+    state: present
+    login_user: "{{ postgresql_admin_user }}"
+  become: True
+  become_user: "{{ postgresql_admin_user }}"
+  with_items: "{{ postgresql_databases }}"
+  when: "postgresql_databases|length > 0"
+  tags: postgresql
+
+- name: Update the user privileges
+  postgresql_user:
+    name: "{{ item.name }}"
+    db: "{{ item.db | default(omit) }}"
+    port: "{{ postgresql_port }}"
+    state: present
+    login_host: "{{ item.host | default(omit) }}"
+    login_user: "{{ postgresql_admin_user }}"
+    priv: "ALL"
+    role_attr_flags: "CREATEDB"
+  become: True
+  become_user: "{{ postgresql_admin_user }}"
+  with_items: "{{ postgresql_user_privileges }}"
+  when: "postgresql_user_privileges|length > 0"
+  tags: postgresql

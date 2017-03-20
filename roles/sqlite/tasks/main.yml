@@ -1,0 +1,5 @@
+---
+- name: Install libsqlite3-dev
+  apt: pkg={{ item }} state=latest
+  with_items:
+  - libsqlite3-dev
