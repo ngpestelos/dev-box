@@ -1,11 +1,15 @@
 dev-box
 =======
 
-Development toolbox.
+Ansible playbook to setup a development environment.
 
-* Ruby
-* Go
-* Docker
+### Why
+
+While Vagrant provides an isolated environment, but doesn't provide a way around slow Internet connections.
+
+It is much faster to install dependencies inside a VPS.
+
+A development box is intended to be a disposable environment.
 
 ### Requirements
 
@@ -14,27 +18,23 @@ Development toolbox.
 
 ### Usage
 
-#### Customize `hosts`:
-
-    $ cp hosts.example hosts
-
-Replace `1.2.3.4` with your server's IP address.
-
-#### Customize `authorized_keys`:
+#### Update `authorized_keys`:
 
 Replace with your public key.
 
-#### Bootstrap the server
+#### Create inventory file:
 
-Do this at most once:
+```
+cp hosts.example hosts
+```
 
-    $ ansible-playbook -i hosts bootstrap.yml -vvvv
+Replace `1.2.3.4` with your server's IP address.
 
-Bootstrapping creates a `deploy` user and disables root login.
+#### Run the playbook
 
-#### Continue with setup:
-
-    $ ansible-playbook -i hosts site.yml -vvvv
+```
+ansible-playbook -i hosts site.yml -vvvv
+```
 
 #### Shell into the machine:
 
