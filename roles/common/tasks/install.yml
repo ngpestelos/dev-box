@@ -16,6 +16,7 @@
     - make
     - mercurial
     - mosh
+    - pkg-config
     - python-software-properties
     - python-virtualenv
     - screen
